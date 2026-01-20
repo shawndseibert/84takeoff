@@ -38,78 +38,35 @@ const WheelPicker = <T extends string | number,>({ options, value, onChange, lab
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     if (!scrollRef.current) return;
-    
     setIsInternalScrolling(true);
     const scrollTop = scrollRef.current.scrollTop;
     const index = Math.round(scrollTop / ITEM_HEIGHT);
-    
     if (index !== localActiveIndex && index >= 0 && index < options.length) {
       setLocalActiveIndex(index);
     }
-    
-    if (scrollTimeout.current) {
-      window.clearTimeout(scrollTimeout.current);
-    }
-
+    if (scrollTimeout.current) window.clearTimeout(scrollTimeout.current);
     scrollTimeout.current = window.setTimeout(() => {
       if (scrollRef.current) {
         const finalScrollTop = scrollRef.current.scrollTop;
         const finalIndex = Math.round(finalScrollTop / ITEM_HEIGHT);
-        
         if (finalIndex >= 0 && finalIndex < options.length) {
           const newValue = options[finalIndex];
-          if (String(newValue) !== String(value)) {
-            onChange(newValue);
-          }
-          scrollRef.current.scrollTo({
-            top: finalIndex * ITEM_HEIGHT,
-            behavior: 'smooth'
-          });
+          if (String(newValue) !== String(value)) onChange(newValue);
+          scrollRef.current.scrollTo({ top: finalIndex * ITEM_HEIGHT, behavior: 'smooth' });
         }
       }
       setTimeout(() => setIsInternalScrolling(false), 150);
     }, 100);
   };
 
-  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const now = Date.now();
-    if (now - lastWheelTime.current < 80) return;
-    
-    const direction = e.deltaY > 0 ? 1 : -1;
-    const currentIndex = localActiveIndex !== -1 ? localActiveIndex : getIndex(value);
-    const nextIndex = Math.max(0, Math.min(options.length - 1, currentIndex + direction));
-
-    if (nextIndex !== currentIndex) {
-      lastWheelTime.current = now;
-      setIsInternalScrolling(true);
-      setLocalActiveIndex(nextIndex);
-      const newValue = options[nextIndex];
-      onChange(newValue);
-      
-      if (scrollRef.current) {
-        scrollRef.current.scrollTo({
-          top: nextIndex * ITEM_HEIGHT,
-          behavior: 'smooth'
-        });
-      }
-      
-      setTimeout(() => setIsInternalScrolling(false), 200);
-    }
-  };
-
   const increment = () => {
     const currentIndex = getIndex(value);
-    if (currentIndex > 0) {
-      onChange(options[currentIndex - 1]);
-    }
+    if (currentIndex > 0) onChange(options[currentIndex - 1]);
   };
 
   const decrement = () => {
     const currentIndex = getIndex(value);
-    if (currentIndex < options.length - 1) {
-      onChange(options[currentIndex + 1]);
-    }
+    if (currentIndex < options.length - 1) onChange(options[currentIndex + 1]);
   };
 
   return (
@@ -119,36 +76,34 @@ const WheelPicker = <T extends string | number,>({ options, value, onChange, lab
           {label}
         </span>
       )}
-      <div 
-        className="relative w-full max-w-[80px] h-32 overflow-hidden rounded-xl bg-zinc-950 border border-zinc-800 shadow-inner group"
-        onWheel={handleWheel}
-      >
-        {/* Discrete +/- buttons meeting in the middle-left area */}
-        <div className="absolute left-0 top-[44px] bottom-[44px] w-6 z-40 flex flex-col pointer-events-none group-hover:pointer-events-auto transition-opacity opacity-0 group-hover:opacity-100">
+      <div className="relative w-full max-w-[80px] h-32 overflow-hidden rounded-xl bg-zinc-950 border border-zinc-800 shadow-inner group">
+        
+        {/* Discrete +/- buttons stacked on the left edge */}
+        <div className="absolute left-0 top-0 bottom-0 w-6 z-40 flex flex-col opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <button 
             onClick={(e) => { e.stopPropagation(); increment(); }}
-            className="flex-1 flex items-start justify-center pt-1 text-zinc-600 hover:text-white transition-colors bg-zinc-900/20"
+            className="flex-1 flex items-center justify-center text-zinc-700 hover:text-zinc-200 hover:bg-white/5 border-r border-zinc-800/50 transition-all"
+            title="Increase"
           >
             <Plus size={10} strokeWidth={4} />
           </button>
           <button 
             onClick={(e) => { e.stopPropagation(); decrement(); }}
-            className="flex-1 flex items-end justify-center pb-1 text-zinc-600 hover:text-white transition-colors bg-zinc-900/20"
+            className="flex-1 flex items-center justify-center text-zinc-700 hover:text-zinc-200 hover:bg-white/5 border-r border-zinc-800/50 transition-all border-t border-zinc-800/20"
+            title="Decrease"
           >
             <Minus size={10} strokeWidth={4} />
           </button>
         </div>
 
-        <div className="absolute inset-x-0 top-[44px] h-10 pointer-events-none z-0 border-y border-zinc-700/30 bg-white/5" />
+        {/* Selection Highlight */}
+        <div className="absolute inset-x-0 top-[44px] h-10 pointer-events-none z-0 border-y border-zinc-700/30 bg-white/[0.02]" />
 
         <div 
           ref={scrollRef}
           onScroll={handleScroll}
           className="h-full overflow-y-auto no-scrollbar snap-y snap-mandatory scroll-smooth relative z-20"
-          style={{
-            paddingTop: `${CENTER_PADDING}px`,
-            paddingBottom: `${CENTER_PADDING}px`
-          }}
+          style={{ paddingTop: `${CENTER_PADDING}px`, paddingBottom: `${CENTER_PADDING}px` }}
         >
           {options.map((opt, i) => {
             const isActive = i === localActiveIndex;
@@ -161,14 +116,9 @@ const WheelPicker = <T extends string | number,>({ options, value, onChange, lab
                   scrollRef.current?.scrollTo({ top: i * ITEM_HEIGHT, behavior: 'smooth' });
                 }}
                 className={`h-[40px] flex items-center justify-center snap-center cursor-pointer transition-all duration-300 select-none tabular-nums ${
-                  isActive 
-                    ? 'font-black text-2xl opacity-100 z-50' 
-                    : 'text-zinc-600 text-sm font-medium opacity-40 z-10'
+                  isActive ? 'font-black text-2xl opacity-100 z-50' : 'text-zinc-600 text-sm font-medium opacity-40 z-10'
                 }`}
-                style={isActive ? {
-                  color: 'var(--accent)',
-                  textShadow: '0 0 15px color-mix(in srgb, var(--accent), transparent 60%)'
-                } : {}}
+                style={isActive ? { color: 'var(--accent)', textShadow: '0 0 12px color-mix(in srgb, var(--accent), transparent 60%)' } : {}}
               >
                 {opt}
               </div>
@@ -176,7 +126,6 @@ const WheelPicker = <T extends string | number,>({ options, value, onChange, lab
           })}
         </div>
         
-        {/* Gradients */}
         <div className="absolute inset-x-0 top-0 h-10 pointer-events-none z-30 bg-gradient-to-b from-zinc-950 via-zinc-950/70 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-10 pointer-events-none z-30 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-transparent" />
       </div>

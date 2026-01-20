@@ -18,17 +18,17 @@ const ConfigSettingsModal: React.FC<Props> = ({ isOpen, onClose, types, setTypes
   if (!isOpen) return null;
 
   const handleAddType = () => {
-    const trimmed = newType.trim().toUpperCase();
-    if (trimmed && !types.includes(trimmed)) {
-      setTypes([...types, trimmed]);
+    const val = newType.trim().toUpperCase();
+    if (val && !types.includes(val)) {
+      setTypes([...types, val]);
       setNewType('');
     }
   };
 
   const handleAddTransom = () => {
-    const trimmed = newTransom.trim();
-    if (trimmed && !transoms.includes(trimmed)) {
-      setTransoms([...transoms, trimmed]);
+    const val = newTransom.trim();
+    if (val && !transoms.includes(val)) {
+      setTransoms([...transoms, val]);
       setNewTransom('');
     }
   };
@@ -54,7 +54,6 @@ const ConfigSettingsModal: React.FC<Props> = ({ isOpen, onClose, types, setTypes
         </div>
 
         <div className="p-6 overflow-y-auto no-scrollbar space-y-8">
-          {/* Types Section */}
           <section>
             <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-4">Window / Door Types</h4>
             <div className="flex gap-2 mb-4">
@@ -63,13 +62,10 @@ const ConfigSettingsModal: React.FC<Props> = ({ isOpen, onClose, types, setTypes
                 value={newType}
                 onChange={(e) => setNewType(e.target.value)}
                 placeholder="e.g. SLIDER"
-                className="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-zinc-700 placeholder:text-zinc-700"
-                onKeyDown={(e) => e.key === 'Enter' && handleAddType()}
+                className="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-zinc-700 placeholder:text-zinc-800"
+                onKeyDown={(e) => { if(e.key === 'Enter') handleAddType(); }}
               />
-              <button 
-                onClick={handleAddType}
-                className="bg-zinc-800 hover:bg-zinc-700 text-white p-2 rounded-lg transition-colors"
-              >
+              <button onClick={handleAddType} className="bg-zinc-800 hover:bg-zinc-700 text-white p-2 rounded-lg transition-colors">
                 <Plus size={18} />
               </button>
             </div>
@@ -87,7 +83,6 @@ const ConfigSettingsModal: React.FC<Props> = ({ isOpen, onClose, types, setTypes
             </div>
           </section>
 
-          {/* Transoms Section */}
           <section>
             <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-4">Transom Options</h4>
             <div className="flex gap-2 mb-4">
@@ -96,13 +91,10 @@ const ConfigSettingsModal: React.FC<Props> = ({ isOpen, onClose, types, setTypes
                 value={newTransom}
                 onChange={(e) => setNewTransom(e.target.value)}
                 placeholder="e.g. 1-6"
-                className="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-zinc-700 placeholder:text-zinc-700"
-                onKeyDown={(e) => e.key === 'Enter' && handleAddTransom()}
+                className="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-zinc-700 placeholder:text-zinc-800"
+                onKeyDown={(e) => { if(e.key === 'Enter') handleAddTransom(); }}
               />
-              <button 
-                onClick={handleAddTransom}
-                className="bg-zinc-800 hover:bg-zinc-700 text-white p-2 rounded-lg transition-colors"
-              >
+              <button onClick={handleAddTransom} className="bg-zinc-800 hover:bg-zinc-700 text-white p-2 rounded-lg transition-colors">
                 <Plus size={18} />
               </button>
             </div>
