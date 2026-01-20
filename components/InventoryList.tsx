@@ -11,7 +11,7 @@ interface Props {
 
 const InventoryList: React.FC<Props> = ({ items, onRemove, onUpdateQty }) => {
   return (
-    <div className="flex flex-col p-4 gap-2">
+    <div className="flex flex-col p-3 gap-1.5">
       {items.map((item) => {
         // Architectural code: e.g. 3060
         const sizeCode = `${item.width}${item.height}`;
@@ -35,54 +35,54 @@ const InventoryList: React.FC<Props> = ({ items, onRemove, onUpdateQty }) => {
         return (
           <div 
             key={item.id} 
-            className="bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 flex items-center justify-between group transition-all hover:border-zinc-700 animate-in fade-in slide-in-from-bottom-1 duration-200"
+            className="bg-zinc-900/60 border border-zinc-800/60 rounded-md px-3 py-1.5 flex items-center justify-between group transition-all hover:border-zinc-700 animate-in fade-in duration-150"
           >
             <div className="flex-1 font-mono flex items-center gap-4 overflow-hidden">
-              {/* Compact Quantity Control */}
-              <div className="flex items-center gap-2 bg-zinc-950 px-2 py-1 rounded border border-zinc-800/50">
+              {/* Ultra-compact Quantity Control */}
+              <div className="flex items-center gap-1.5 bg-zinc-950 px-1.5 py-0.5 rounded border border-zinc-800/40 shrink-0">
                 <button 
                   onClick={() => onUpdateQty(item.id, -1)}
-                  className="text-zinc-500 hover:text-white transition-colors disabled:opacity-0"
+                  className="text-zinc-600 hover:text-white transition-colors disabled:opacity-0 p-0.5"
                   disabled={item.qty <= 1}
                 >
-                  <Minus size={14} strokeWidth={3} />
+                  <Minus size={12} strokeWidth={3} />
                 </button>
                 <span 
-                  className="font-black text-xl min-w-[1.2rem] text-center select-none"
+                  className="font-black text-lg min-w-[1rem] text-center select-none"
                   style={{ color: 'var(--accent)' }}
                 >
                   {item.qty}
                 </span>
                 <button 
                   onClick={() => onUpdateQty(item.id, 1)}
-                  className="text-zinc-500 hover:text-white transition-colors"
+                  className="text-zinc-600 hover:text-white transition-colors p-0.5"
                 >
-                  <Plus size={14} strokeWidth={3} />
+                  <Plus size={12} strokeWidth={3} />
                 </button>
               </div>
 
               <div className="flex flex-col min-w-0">
                 {/* Primary Readout: 3060 SH */}
                 <div className="flex items-baseline gap-2">
-                  <h3 className="text-zinc-100 font-black text-xl tracking-tighter uppercase leading-tight">
-                    {sizeCode} <span style={{ color: 'var(--accent-comp)' }} className="ml-1 opacity-90">{typePart}</span>
+                  <h3 className="text-zinc-100 font-bold text-lg tracking-tight uppercase leading-none">
+                    {sizeCode} <span style={{ color: 'var(--accent-comp)' }} className="opacity-90">{typePart}</span>
                   </h3>
-                  <span className="text-[10px] font-bold text-zinc-600 bg-zinc-800/30 px-1 rounded border border-zinc-800/50">
+                  <span className="text-[9px] font-medium text-zinc-500 bg-zinc-800/20 px-1 rounded border border-zinc-800/30 whitespace-nowrap">
                     {item.width}"×{item.height}"
                   </span>
                 </div>
                 
-                {/* Secondary: Specs */}
+                {/* Secondary Specs Row */}
                 {secondaryParts.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-x-1.5 mt-0.5">
+                  <div className="flex flex-wrap items-center gap-x-1.5 mt-0.5 leading-none">
                     {secondaryParts.map((part, idx) => (
                       <span 
                         key={idx}
-                        className="text-[9px] font-black uppercase tracking-widest text-zinc-500"
-                        style={{ color: 'color-mix(in srgb, var(--accent-comp), transparent 30%)' }}
+                        className="text-[8px] font-black uppercase tracking-widest"
+                        style={{ color: 'color-mix(in srgb, var(--accent-comp), transparent 40%)' }}
                       >
                         {part}
-                        {idx < secondaryParts.length - 1 && <span className="ml-1.5 text-zinc-800">•</span>}
+                        {idx < secondaryParts.length - 1 && <span className="ml-1 text-zinc-800">•</span>}
                       </span>
                     ))}
                   </div>
@@ -92,10 +92,10 @@ const InventoryList: React.FC<Props> = ({ items, onRemove, onUpdateQty }) => {
             
             <button 
               onClick={() => onRemove(item.id)}
-              className="p-2 text-zinc-700 hover:text-red-500 transition-colors ml-2 shrink-0 hover:bg-red-500/5 rounded-md"
+              className="p-1.5 text-zinc-700 hover:text-red-500 transition-colors ml-2 shrink-0 hover:bg-red-500/5 rounded"
               aria-label="Remove item"
             >
-              <Trash2 size={18} />
+              <Trash2 size={16} />
             </button>
           </div>
         );
