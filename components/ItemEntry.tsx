@@ -11,9 +11,10 @@ interface Props {
 }
 
 const ItemEntry: React.FC<Props> = ({ onAdd, types, transoms }) => {
+  // Sensible defaults: 3660 SH (3'0" x 5'0" Single Hung)
   const [qty, setQty] = useState(1);
   const [width, setWidth] = useState(36);
-  const [height, setHeight] = useState(80);
+  const [height, setHeight] = useState(60);
   const [type, setType] = useState<string>(types[0] || 'SH');
   const [tempered, setTempered] = useState(false);
   const [drywall, setDrywall] = useState(false);
@@ -46,12 +47,13 @@ const ItemEntry: React.FC<Props> = ({ onAdd, types, transoms }) => {
         
         <div className="flex flex-col items-center gap-2 min-w-[84px]">
           <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em]">Type</span>
-          <div className="grid grid-cols-2 gap-1.5 w-full h-32 overflow-y-auto no-scrollbar bg-zinc-950 p-1.5 rounded-xl border border-zinc-800">
+          <div className="grid grid-cols-2 gap-1.5 w-full h-32 overflow-y-auto no-scrollbar bg-zinc-950 p-1.5 rounded-xl border border-zinc-800 shadow-inner">
             {types.map(t => (
               <button
                 key={t}
                 onClick={() => {
                   setType(t);
+                  // Auto-adjust height for doors if needed
                   if (t === 'DOOR' && height < 80) setHeight(80);
                 }}
                 className={`text-[9px] font-black min-h-[40px] rounded-lg border transition-all flex items-center justify-center px-1 text-center leading-none ${

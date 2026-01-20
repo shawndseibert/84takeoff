@@ -59,14 +59,35 @@ const WheelPicker = <T extends string | number,>({ options, value, onChange, lab
     }, 100);
   };
 
-  const increment = () => {
-    const currentIndex = getIndex(value);
-    if (currentIndex > 0) onChange(options[currentIndex - 1]);
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const now = Date.now();
+    if (now - lastWheelTime.current < 80) return;
+    
+    const direction = e.deltaY > 0 ? 1 : -1;
+    const currentIndex = localActiveIndex !== -1 ? localActiveIndex : getIndex(value);
+    const nextIndex = Math.max(0, Math.min(options.length - 1, currentIndex + direction));
+
+    if (nextIndex !== currentIndex) {
+      lastWheelTime.current = now;
+      setIsInternalScrolling(true);
+      setLocalActiveIndex(nextIndex);
+      onChange(options[nextIndex]);
+      if (scrollRef.current) {
+        scrollRef.current.scrollTo({ top: nextIndex * ITEM_HEIGHT, behavior: 'smooth' });
+      }
+      setTimeout(() => setIsInternalScrolling(false), 200);
+    }
   };
 
-  const decrement = () => {
+  const nudgeUp = () => {
     const currentIndex = getIndex(value);
     if (currentIndex < options.length - 1) onChange(options[currentIndex + 1]);
+  };
+
+  const nudgeDown = () => {
+    const currentIndex = getIndex(value);
+    if (currentIndex > 0) onChange(options[currentIndex - 1]);
   };
 
   return (
@@ -76,28 +97,30 @@ const WheelPicker = <T extends string | number,>({ options, value, onChange, lab
           {label}
         </span>
       )}
-      <div className="relative w-full max-w-[80px] h-32 overflow-hidden rounded-xl bg-zinc-950 border border-zinc-800 shadow-inner group">
-        
-        {/* Discrete +/- buttons stacked on the left edge */}
-        <div className="absolute left-0 top-0 bottom-0 w-6 z-40 flex flex-col opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+      <div 
+        className="relative w-full max-w-[84px] h-32 overflow-hidden rounded-xl bg-zinc-950 border border-zinc-800 shadow-inner group"
+        onWheel={handleWheel}
+      >
+        {/* Discrete nudge buttons on the left - slightly visible by default */}
+        <div className="absolute left-0 top-0 bottom-0 w-6 z-40 flex flex-col pointer-events-none group-hover:pointer-events-auto opacity-20 group-hover:opacity-100 transition-opacity duration-300">
           <button 
-            onClick={(e) => { e.stopPropagation(); increment(); }}
-            className="flex-1 flex items-center justify-center text-zinc-700 hover:text-zinc-200 hover:bg-white/5 border-r border-zinc-800/50 transition-all"
-            title="Increase"
-          >
-            <Plus size={10} strokeWidth={4} />
-          </button>
-          <button 
-            onClick={(e) => { e.stopPropagation(); decrement(); }}
-            className="flex-1 flex items-center justify-center text-zinc-700 hover:text-zinc-200 hover:bg-white/5 border-r border-zinc-800/50 transition-all border-t border-zinc-800/20"
-            title="Decrease"
+            onClick={(e) => { e.stopPropagation(); nudgeDown(); }}
+            className="flex-1 border-r border-zinc-800 bg-zinc-900/10 hover:bg-zinc-800/40 transition-colors flex items-center justify-center text-zinc-600 hover:text-white"
+            title="Nudge Up"
           >
             <Minus size={10} strokeWidth={4} />
           </button>
+          <button 
+            onClick={(e) => { e.stopPropagation(); nudgeUp(); }}
+            className="flex-1 border-r border-t border-zinc-800 bg-zinc-900/10 hover:bg-zinc-800/40 transition-colors flex items-center justify-center text-zinc-600 hover:text-white"
+            title="Nudge Down"
+          >
+            <Plus size={10} strokeWidth={4} />
+          </button>
         </div>
 
-        {/* Selection Highlight */}
-        <div className="absolute inset-x-0 top-[44px] h-10 pointer-events-none z-0 border-y border-zinc-700/30 bg-white/[0.02]" />
+        {/* Selection highlight overlay */}
+        <div className="absolute inset-x-0 top-[44px] h-10 pointer-events-none z-0 border-y border-zinc-700/20 bg-white/[0.02]" />
 
         <div 
           ref={scrollRef}
@@ -116,9 +139,9 @@ const WheelPicker = <T extends string | number,>({ options, value, onChange, lab
                   scrollRef.current?.scrollTo({ top: i * ITEM_HEIGHT, behavior: 'smooth' });
                 }}
                 className={`h-[40px] flex items-center justify-center snap-center cursor-pointer transition-all duration-300 select-none tabular-nums ${
-                  isActive ? 'font-black text-2xl opacity-100 z-50' : 'text-zinc-600 text-sm font-medium opacity-40 z-10'
+                  isActive ? 'font-black text-2xl opacity-100 z-50' : 'text-zinc-600 text-sm font-medium opacity-30 z-10'
                 }`}
-                style={isActive ? { color: 'var(--accent)', textShadow: '0 0 12px color-mix(in srgb, var(--accent), transparent 60%)' } : {}}
+                style={isActive ? { color: 'var(--accent)', textShadow: '0 0 10px color-mix(in srgb, var(--accent), transparent 60%)' } : {}}
               >
                 {opt}
               </div>
@@ -126,8 +149,9 @@ const WheelPicker = <T extends string | number,>({ options, value, onChange, lab
           })}
         </div>
         
-        <div className="absolute inset-x-0 top-0 h-10 pointer-events-none z-30 bg-gradient-to-b from-zinc-950 via-zinc-950/70 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-10 pointer-events-none z-30 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-transparent" />
+        {/* Gradient overlays for "wheel" effect */}
+        <div className="absolute inset-x-0 top-0 h-10 pointer-events-none z-30 bg-gradient-to-b from-zinc-950 via-zinc-950/80 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-10 pointer-events-none z-30 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent" />
       </div>
     </div>
   );
